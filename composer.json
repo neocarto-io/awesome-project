@@ -1,0 +1,27 @@
+{
+    "name": "romania2x/awesome-project",
+    "description": "Rapid development toolkit for Symfony flavoured projects",
+    "type": "library",
+    "license": "none",
+    "authors": [
+        {
+            "name": "Sorin Badea",
+            "email": "sorin.badea91@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "symfony/console": "^5.2@dev",
+        "symfony/finder": "^5.2@dev",
+        "symfony/var-dumper": "^5.2@dev",
+        "symfony/process": "^5.2@dev",
+        "symfony/yaml": "^5.2@dev",
+        "ext-json": "*",
+        "jms/serializer": "^3.7@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "AwesomeProject\\": "src/"
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "directories": [
+    "src",
+    "vendor"
+  ],
+  "files": [
+    "awesome-project.php"
+  ],
+  "main": "awesome-project.php",
+  "output": "build/awesome-project.phar",
+  "stub": true
+}
