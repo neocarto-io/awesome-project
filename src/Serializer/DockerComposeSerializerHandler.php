@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AwesomeProject\Serializer;
 
 use AwesomeProject\Model\DockerCompose\EnvironmentVariable;
+use AwesomeProject\Model\DockerCompose\PortMapping;
 use AwesomeProject\Model\DockerCompose\Volume;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigatorInterface;
@@ -44,6 +45,30 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
                 'type' => 'VolumeString',
                 'method' => 'serializeVolume'
             ],
+            [
+                'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
+                'format' => 'json',
+                'type' => 'PortMappingString',
+                'method' => 'deserializePortMapping'
+            ],
+            [
+                'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
+                'format' => 'json',
+                'type' => 'PortMappingString',
+                'method' => 'serializePortMapping'
+            ],
+            [
+                'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
+                'format' => 'json',
+                'type' => 'Networks',
+                'method' => 'passThroughNetworks'
+            ],
+            [
+                'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
+                'format' => 'json',
+                'type' => 'Networks',
+                'method' => 'passThroughNetworks'
+            ],
         ];
     }
 
@@ -74,6 +99,32 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
     }
 
     /**
+     * @param JsonDeserializationVisitor $visitor
+     * @param string $portMappingString
+     * @param array $type
+     * @param Context $context
+     * @return PortMapping
+     */
+    public function deserializePortMapping(JsonDeserializationVisitor $visitor, string $portMappingString, array $type, Context $context)
+    {
+        list($host, $container) = explode(':', $portMappingString, 2);
+
+        return new PortMapping(intval($host), intval($container));
+    }
+
+    /**
+     * @param JsonSerializationVisitor $visitor
+     * @param PortMapping $portMapping
+     * @param array $type
+     * @param Context $context
+     * @return string
+     */
+    public function serializePortMapping(JsonSerializationVisitor $visitor, PortMapping $portMapping, array $type, Context $context)
+    {
+        return (string)$portMapping;
+    }
+
+    /**
      * @param JsonSerializationVisitor $visitor
      * @param Volume $volume
      * @param array $type
@@ -97,5 +148,17 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
         list($key, $value) = explode(':', $environmentVariableString, 2);
 
         return new Volume($key, $value);
+    }
+
+    /**
+     * @param JsonSerializationVisitor|JsonDeserializationVisitor $visitor
+     * @param array $networks
+     * @param array $type
+     * @param Context $context
+     * @return array
+     */
+    public function passThroughNetworks($visitor, array $networks, array $type, Context $context)
+    {
+        return $networks;
     }
 }

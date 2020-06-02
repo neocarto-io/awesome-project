@@ -39,8 +39,7 @@ class UpCommand extends AbstractCommand
         );
 
 
-        $table = (new Table($output))
-            ->setStyle('compact');
+        $table = new Table($output);
 
         $table->setHeaders(['name', 'docker-compose', 'php composer']);
 
@@ -55,18 +54,19 @@ class UpCommand extends AbstractCommand
         }
 
         $table->render();
+        $output->writeln('');
 
-        $servicesManager->compileMainDockerCompose();
+        $servicesManager->compile();
 
-        $upResult = DockerCompose::up($servicesManager->getDockerComposeServicesConfigs(), getcwd());
+//        $upResult = DockerCompose::up($servicesManager->getDockerComposeServicesConfigs(), getcwd());
 
-        if ($upResult['success']) {
-            $output->writeln(PHP_EOL . ' => <question>Configuration is up!</question>');
-            $output->write($upResult['output']);
-        } else {
-            $output->writeln("<error>ERROR!</error> Something went wrong while trying to start the configuration");
-            $output->write($upResult['error']);
-        }
+//        if ($upResult['success']) {
+//            $output->writeln(PHP_EOL . ' => <question>Configuration is up!</question>');
+//            $output->write($upResult['output']);
+//        } else {
+//            $output->writeln("<error>ERROR!</error> Something went wrong while trying to start the configuration");
+//            $output->write($upResult['error']);
+//        }
 
         return 0;
     }

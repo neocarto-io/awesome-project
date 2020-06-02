@@ -1,0 +1,7 @@
+services:
+  AwesomeProject\:
+    resource: 'src'
+    public: true
+  AwesomeProject\Command\:
+    resource: 'src/Command'
+    tags: ['command']

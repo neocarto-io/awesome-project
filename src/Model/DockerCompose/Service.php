@@ -24,7 +24,7 @@ class Service
      * @var EnvironmentVariable[]|null
      * @Serializer\Type("array<EnvironmentVariableString>")
      */
-    private ?array $environment = [];
+    private ?array $environment = null;
 
     /**
      * @var string[]|null
@@ -52,7 +52,7 @@ class Service
 
     /**
      * @var string[]|null
-     * @Serializer\Type("array<string>")
+     * @Serializer\Type("array<PortMappingString>")
      */
     private ?array $ports = null;
 
@@ -208,12 +208,40 @@ class Service
     }
 
     /**
+     * @param string $link
+     * @return $this
+     */
+    public function addLink(string $link): self
+    {
+        if (in_array($link, $this->links)) {
+            return $this;
+        }
+
+        $this->links[] = $link;
+
+        return $this;
+    }
+
+    /**
      * @param string[]|null $networks
      * @return $this
      */
     public function setNetworks(?array $networks): self
     {
         $this->networks = $networks;
+        return $this;
+    }
+
+    /**
+     * @param string $network
+     * @return $this
+     */
+    public function addNetwork(string $network): self
+    {
+        if (in_array($network, $this->networks)) {
+            return $this;
+        }
+        $this->networks[] = $network;
         return $this;
     }
 

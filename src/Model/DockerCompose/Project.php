@@ -26,7 +26,7 @@ class Project
 
     /**
      * @var array
-     * @Serializer\Type("array")
+     * @Serializer\Type("Networks")
      */
     private array $networks = [];
 

@@ -17,7 +17,9 @@
         "symfony/process": "^5.2@dev",
         "symfony/yaml": "^5.2@dev",
         "ext-json": "*",
-        "jms/serializer": "^3.7@dev"
+        "jms/serializer": "^3.7@dev",
+        "symfony/dependency-injection": "^5.2@dev",
+        "symfony/config": "^5.2@dev"
     },
     "autoload": {
         "psr-4": {
