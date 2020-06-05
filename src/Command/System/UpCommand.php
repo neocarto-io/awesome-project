@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace AwesomeProject\Command\System;
 
 use AwesomeProject\Command\AbstractCommand;
-use AwesomeProject\Helpers\DockerCompose;
-use AwesomeProject\Manager\ServicesManager;
+use AwesomeProject\Manager\DockerComposeManager;
+use AwesomeProject\Manager\ProjectManager;
+use AwesomeProject\Model\Configuration\Constants\DockerConfiguration;
+use AwesomeProject\Model\Configuration\Constants\PHPConfiguration;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,6 +17,23 @@ class UpCommand extends AbstractCommand
 {
     protected static $defaultName = 'up';
 
+    private ProjectManager $projectManager;
+    private DockerComposeManager $dockerComposeManager;
+
+    /**
+     * @param ProjectManager $projectManager
+     * @param DockerComposeManager $dockerComposeManager
+     */
+    public function __construct(ProjectManager $projectManager, DockerComposeManager $dockerComposeManager)
+    {
+        parent::__construct();
+        $this->projectManager = $projectManager;
+        $this->dockerComposeManager = $dockerComposeManager;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     protected function configure()
     {
         $this->setDescription('Start the configuration');
@@ -27,14 +46,13 @@ class UpCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $servicesManager = new ServicesManager();
-        $services = $servicesManager->getServices();
+        $projects = $this->projectManager->getProjects();
 
         $output->writeln(
             sprintf(
                 ' => <info>%s projects discovered: %s</info>' . PHP_EOL,
-                count($services),
-                implode(', ', array_keys($services))
+                count($projects),
+                implode(', ', array_keys($projects))
             )
         );
 
@@ -43,12 +61,12 @@ class UpCommand extends AbstractCommand
 
         $table->setHeaders(['name', 'docker-compose', 'php composer']);
 
-        foreach ($services as $serviceConfiguration) {
+        foreach ($projects as $projectConfiguration) {
             $table->addRow(
                 [
-                    $serviceConfiguration->getSlug(),
-                    $serviceConfiguration->getDockerComposeConfig() ? 'yes' : 'no',
-                    $serviceConfiguration->getPhpComposerConfig() ? 'yes' : 'no'
+                    $projectConfiguration->getSlug(),
+                    $projectConfiguration->hasConfiguration(DockerConfiguration::COMPOSE_CONFIG_PATH) ? '✔' : '❌',
+                    $projectConfiguration->hasConfiguration(PHPConfiguration::COMPOSER_CONFIG) ? '✔' : '❌'
                 ]
             );
         }
@@ -56,17 +74,20 @@ class UpCommand extends AbstractCommand
         $table->render();
         $output->writeln('');
 
-        $servicesManager->compile();
 
-//        $upResult = DockerCompose::up($servicesManager->getDockerComposeServicesConfigs(), getcwd());
+        $this->dockerComposeManager->compileConfiguration();
 
-//        if ($upResult['success']) {
-//            $output->writeln(PHP_EOL . ' => <question>Configuration is up!</question>');
-//            $output->write($upResult['output']);
-//        } else {
-//            $output->writeln("<error>ERROR!</error> Something went wrong while trying to start the configuration");
-//            $output->write($upResult['error']);
-//        }
+        $this->dockerComposeManager->up()->then(
+            function ($outputString) use ($output) {
+                $output->write($outputString);
+                $output->writeln(" => <info>Project configuration is up and running ✔️</info>");
+                exit(0);
+            },
+            function ($errorOutputString) use ($output) {
+                $output->write($errorOutputString);
+                exit(1);
+            }
+        );
 
         return 0;
     }

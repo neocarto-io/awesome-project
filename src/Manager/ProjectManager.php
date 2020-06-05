@@ -2,45 +2,47 @@
 
 namespace AwesomeProject\Manager;
 
-use AwesomeProject\Aggregator\DockerComposeAggregator;
+use AwesomeProject\Aggregator\ProjectAggregator;
 use AwesomeProject\Model\Configuration\MainConfiguration;
-use AwesomeProject\Model\ServiceConfiguration;
+use AwesomeProject\Model\Configuration\ProjectConfiguration;
 use AwesomeProject\Serializer\DockerComposeSerializerHandler;
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
-use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
-class ServicesManager
+class ProjectManager
 {
-    private Serializer $serializer;
-    private DockerComposeAggregator $dockerComposeAggregator;
+    private ProjectAggregator $projectAggregator;
 
-    private MainConfiguration $mainConfiguration;
+    /** @var ProjectConfiguration[]|null */
+    private ?array $projects = null;
 
-    /** @var ServiceConfiguration[] */
-    private array $services = [];
-
-
-    public function __construct()
+    public function __construct(ProjectAggregator $projectAggregator)
     {
-        $this->createSerializer();
-        $this->dockerComposeAggregator = new DockerComposeAggregator(getcwd(), $this->serializer);
-
-        foreach ($this->constructServices() as $service) {
-            $this->services[$service->getSlug()] = $service;
-        }
+        $this->projectAggregator = $projectAggregator;
     }
 
     /**
-     * @return ServiceConfiguration[]
+     * @return ProjectConfiguration[]
      */
-    public function getServices(): array
+    public function getProjects(): array
     {
-        return $this->services;
+        if (is_null($this->projects)) {
+            $this->projects = [];
+            foreach ($this->projectAggregator->getProjects() as $project) {
+                $this->projects[$project->getSlug()] = $project;
+            }
+        }
+
+        return $this->projects;
+    }
+
+    public function getMainConfiguration(): MainConfiguration
+    {
+        return $this->projectAggregator->getConfiguration();
     }
 
     /**
@@ -73,7 +75,7 @@ class ServicesManager
         }
 
 
-        foreach ($this->getServices() as $serviceConfiguration) {
+        foreach ($this->getProjects() as $serviceConfiguration) {
             $this->dockerComposeAggregator->attemptRegistration($serviceConfiguration);
         }
 
@@ -90,7 +92,7 @@ class ServicesManager
 
     /**
      * Get services
-     * @return \Iterator|ServiceConfiguration[]
+     * @return \Iterator|ProjectConfiguration[]
      */
     private function constructServices(): \Iterator
     {
@@ -104,17 +106,17 @@ class ServicesManager
             'json'
         );
 
-        if (is_null($this->mainConfiguration->getServicesRoot())) {
+        if (is_null($this->mainConfiguration->getProjectsRoot())) {
             throw new \RuntimeException("Services root not configured");
         }
 
         try {
             $finder = (new Finder())
                 ->depth(0)
-                ->in($this->mainConfiguration->getServicesRoot());
+                ->in($this->mainConfiguration->getProjectsRoot());
 
             foreach ($finder->directories() as $fileInfo) {
-                yield new ServiceConfiguration(realpath($fileInfo->getPathname()));
+                yield new ProjectConfiguration(realpath($fileInfo->getPathname()));
             }
         } catch (DirectoryNotFoundException $exception) {
             throw new \RuntimeException("Services root not valid");

@@ -12,7 +12,8 @@ class  MainConfiguration
      * @var string
      * @Serializer\Type("string")
      */
-    private string $servicesRoot;
+    private string $projectsRoot;
+
     /**
      * @var Route[]
      * @Serializer\Type("array<string,AwesomeProject\Model\Configuration\Route>")
@@ -22,9 +23,9 @@ class  MainConfiguration
     /**
      * @return string
      */
-    public function getServicesRoot(): string
+    public function getProjectsRoot(): string
     {
-        return $this->servicesRoot;
+        return $this->projectsRoot;
     }
 
     /**

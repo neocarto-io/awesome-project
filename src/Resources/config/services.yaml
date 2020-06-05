@@ -1,7 +1,16 @@
 services:
-  AwesomeProject\:
-    resource: 'src'
+  AwesomeProject\AwesomeProjectApplication:
     public: true
+
+  AwesomeProject\:
+    resource: 'src/{Aggregator,Command,Manager}'
+    public: true
+    autowire: true
+
   AwesomeProject\Command\:
     resource: 'src/Command'
+    autowire: true
     tags: ['command']
+
+  JMS\Serializer\Serializer:
+    factory: 'AwesomeProject\Serializer\SerializerBuilder::create'

@@ -19,7 +19,8 @@
         "ext-json": "*",
         "jms/serializer": "^3.7@dev",
         "symfony/dependency-injection": "^5.2@dev",
-        "symfony/config": "^5.2@dev"
+        "symfony/config": "^5.2@dev",
+        "react/promise": "dev-master"
     },
     "autoload": {
         "psr-4": {
