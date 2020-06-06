@@ -41,7 +41,7 @@ class HttpGatewayAggregator
             ->setEnvironment(
                 [
                     new EnvironmentVariable('KONG_DATABASE', 'off'),
-                    new EnvironmentVariable('KONG_DECLARATIVE_CONFIG', '/configs/config.yml'),
+                    new EnvironmentVariable('KONG_DECLARATIVE_CONFIG', '/configs/config.yaml'),
                     new EnvironmentVariable('KONG_PROXY_ACCESS_LOG', '/dev/stdout'),
                     new EnvironmentVariable('KONG_ADMIN_ACCESS_LOG', '/dev/stdout'),
                     new EnvironmentVariable('KONG_PROXY_ERROR_LOG', '/dev/stderr'),
@@ -74,6 +74,9 @@ class HttpGatewayAggregator
         );
     }
 
+    /**
+     * @return string dir path of the configuration
+     */
     private function compileConfiguration(): string
     {
         $projectConfig = $this->projectManager->getMainConfiguration();
@@ -85,9 +88,11 @@ class HttpGatewayAggregator
                 'name' => $routeName,
                 'url' => $route->getTarget(),
                 'routes' => [
-                    'name' => $routeName,
-                    'hosts' => $route->getHosts(),
-                    'paths' => $route->getPaths()
+                    [
+                        'name' => $routeName,
+                        'hosts' => $route->getHosts(),
+                        'paths' => $route->getPaths()
+                    ]
                 ]
             ];
         }

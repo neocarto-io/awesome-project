@@ -63,12 +63,16 @@ class DockerComposeManager
     {
         $deferred = new Deferred();
 
-        $process = new Process(['docker-compose', 'up', '-d'], getcwd());
+        $process = new Process(['docker-compose', 'up', '-d'], getcwd(), null, null, 0);
 
-        $process->run();
+        $process->start();
+
+        while (!$process->isTerminated()) {
+            echo $process->getIncrementalOutput();
+        }
 
         if ($process->isSuccessful()) {
-            $deferred->resolve($process->getOutput());
+            $deferred->resolve();
         } else {
             $deferred->reject(new \RuntimeException($process->getErrorOutput()));
         }

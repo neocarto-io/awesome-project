@@ -78,12 +78,12 @@ class UpCommand extends AbstractCommand
         $this->dockerComposeManager->compileConfiguration();
 
         $this->dockerComposeManager->up()->then(
-            function ($outputString) use ($output) {
-                $output->write($outputString);
+            function () use ($output) {
                 $output->writeln(" => <info>Project configuration is up and running ✔️</info>");
                 exit(0);
             },
             function ($errorOutputString) use ($output) {
+                $output->writeln("<error>ERROR!</error>");
                 $output->write($errorOutputString);
                 exit(1);
             }

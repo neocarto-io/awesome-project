@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace AwesomeProject\Aggregator;
 
 use AwesomeProject\Model\Configuration\Constants\DockerConfiguration;
-use AwesomeProject\Model\Configuration\MainConfiguration;
 use AwesomeProject\Model\Configuration\ProjectConfiguration;
-use AwesomeProject\Model\DockerCompose\EnvironmentVariable;
-use AwesomeProject\Model\DockerCompose\PortMapping;
 use AwesomeProject\Model\DockerCompose\Project;
 use AwesomeProject\Model\DockerCompose\Service;
 use AwesomeProject\Model\DockerCompose\Volume;
@@ -46,21 +43,33 @@ class DockerComposeAggregator
     private function mergeConfigurations(Project $source, Project $target, ?Service $gateway)
     {
         foreach ($source->getServices() as $serviceId => $service) {
-            $service->setVolumes(array_map(
-                function (Volume $volume) use ($source) {
-                    $hostPath = str_replace('./', $source->getPath() . DIRECTORY_SEPARATOR, $volume->getHostPath());
-                    return new Volume(
-                        $hostPath,
-                        $volume->getContainerPath()
-                    );
-                },
-                $service->getVolumes()
-            ));
+            if (is_array($service->getVolumes())) {
+                $service->setVolumes(
+                    array_map(
+                        function (Volume $volume) use ($source) {
+                            if (substr($volume->getHostPath(), 0, 2) == './') {
+                                $hostPath = $source->getPath() . DIRECTORY_SEPARATOR . substr($volume->getHostPath(), 2);
+                            } else {
+                                $hostPath = $volume->getHostPath();
+                            }
+                            return new Volume(
+                                $hostPath,
+                                $volume->getContainerPath()
+                            );
+                        },
+                        $service->getVolumes()
+                    )
+                );
+            }
 
             if (is_array($service->getEnvFile())) {
                 $service->setEnvFile(array_map(
                     function (string $path) use ($source) {
-                        return str_replace('./', $source->getPath() . DIRECTORY_SEPARATOR, $path);
+                        if (substr($path, 0, 2) == './') {
+                            return $source->getPath() . DIRECTORY_SEPARATOR . substr($path, 2);
+                        } else {
+                            return $path;
+                        }
                     },
                     $service->getEnvFile()
                 ));
