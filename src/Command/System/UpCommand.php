@@ -65,8 +65,8 @@ class UpCommand extends AbstractCommand
             $table->addRow(
                 [
                     $projectConfiguration->getSlug(),
-                    $projectConfiguration->hasConfiguration(DockerConfiguration::COMPOSE_CONFIG_PATH) ? '✔' : '❌',
-                    $projectConfiguration->hasConfiguration(PHPConfiguration::COMPOSER_CONFIG) ? '✔' : '❌'
+                    $projectConfiguration->hasConfiguration(DockerConfiguration::COMPOSE_CONFIG_PATH) ? '✔' : 'x',
+                    $projectConfiguration->hasConfiguration(PHPConfiguration::COMPOSER_CONFIG) ? '✔' : 'x'
                 ]
             );
         }

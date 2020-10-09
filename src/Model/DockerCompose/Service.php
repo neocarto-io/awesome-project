@@ -68,6 +68,12 @@ class Service
     private ?string $workingDir = null;
 
     /**
+     * @var string|null
+     * @Serializer\Type("string")
+     */
+    private ?string $hostname = null;
+
+    /**
      * @return string|null
      */
     public function getImage(): ?string
@@ -154,6 +160,7 @@ class Service
     public function setImage(?string $image): self
     {
         $this->image = $image;
+
         return $this;
     }
 
@@ -164,6 +171,7 @@ class Service
     public function setCommand(?string $command): self
     {
         $this->command = $command;
+
         return $this;
     }
 
@@ -174,6 +182,7 @@ class Service
     public function setEnvironment(?array $environment): self
     {
         $this->environment = $environment;
+
         return $this;
     }
 
@@ -184,6 +193,7 @@ class Service
     public function setEnvFile(?array $envFile): self
     {
         $this->envFile = $envFile;
+
         return $this;
     }
 
@@ -194,6 +204,7 @@ class Service
     public function setVolumes(?array $volumes): self
     {
         $this->volumes = $volumes;
+
         return $this;
     }
 
@@ -204,6 +215,7 @@ class Service
     public function setLinks(?array $links): self
     {
         $this->links = $links;
+
         return $this;
     }
 
@@ -229,6 +241,7 @@ class Service
     public function setNetworks(?array $networks): self
     {
         $this->networks = $networks;
+
         return $this;
     }
 
@@ -242,6 +255,7 @@ class Service
             return $this;
         }
         $this->networks[] = $network;
+
         return $this;
     }
 
@@ -252,6 +266,7 @@ class Service
     public function setPorts(?array $ports): self
     {
         $this->ports = $ports;
+
         return $this;
     }
 
@@ -262,6 +277,7 @@ class Service
     public function setBuild(?string $build): self
     {
         $this->build = $build;
+
         return $this;
     }
 
@@ -272,6 +288,26 @@ class Service
     public function setWorkingDir(?string $workingDir): self
     {
         $this->workingDir = $workingDir;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getHostname(): ?string
+    {
+        return $this->hostname;
+    }
+
+    /**
+     * @param string|null $hostname
+     * @return $this
+     */
+    public function setHostname(?string $hostname): self
+    {
+        $this->hostname = $hostname;
+
         return $this;
     }
 }

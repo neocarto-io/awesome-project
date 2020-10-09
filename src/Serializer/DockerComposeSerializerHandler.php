@@ -79,8 +79,12 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
      * @param Context $context
      * @return EnvironmentVariable
      */
-    public function deserializeEnvironmentVariableString(JsonDeserializationVisitor $visitor, string $environmentVariableString, array $type, Context $context)
-    {
+    public function deserializeEnvironmentVariableString(
+        JsonDeserializationVisitor $visitor,
+        string $environmentVariableString,
+        array $type,
+        Context $context
+    ) {
         list($key, $value) = explode('=', $environmentVariableString, 2);
 
         return new EnvironmentVariable($key, $value);
@@ -93,8 +97,12 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
      * @param Context $context
      * @return string
      */
-    public function serializeEnvironmentVariable(JsonSerializationVisitor $visitor, EnvironmentVariable $environmentVariable, array $type, Context $context)
-    {
+    public function serializeEnvironmentVariable(
+        JsonSerializationVisitor $visitor,
+        EnvironmentVariable $environmentVariable,
+        array $type,
+        Context $context
+    ) {
         return (string)$environmentVariable;
     }
 
@@ -105,11 +113,15 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
      * @param Context $context
      * @return PortMapping
      */
-    public function deserializePortMapping(JsonDeserializationVisitor $visitor, string $portMappingString, array $type, Context $context)
-    {
+    public function deserializePortMapping(
+        JsonDeserializationVisitor $visitor,
+        string $portMappingString,
+        array $type,
+        Context $context
+    ) {
         list($host, $container) = explode(':', $portMappingString, 2);
 
-        return new PortMapping(intval($host), intval($container));
+        return new PortMapping($host, $container);
     }
 
     /**
@@ -119,8 +131,12 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
      * @param Context $context
      * @return string
      */
-    public function serializePortMapping(JsonSerializationVisitor $visitor, PortMapping $portMapping, array $type, Context $context)
-    {
+    public function serializePortMapping(
+        JsonSerializationVisitor $visitor,
+        PortMapping $portMapping,
+        array $type,
+        Context $context
+    ) {
         return (string)$portMapping;
     }
 
@@ -143,8 +159,12 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
      * @param Context $context
      * @return Volume
      */
-    public function deserializeVolumeString(JsonDeserializationVisitor $visitor, string $environmentVariableString, array $type, Context $context)
-    {
+    public function deserializeVolumeString(
+        JsonDeserializationVisitor $visitor,
+        string $environmentVariableString,
+        array $type,
+        Context $context
+    ) {
         list($key, $value) = explode(':', $environmentVariableString, 2);
 
         return new Volume($key, $value);
