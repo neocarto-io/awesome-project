@@ -36,14 +36,13 @@ class ProjectAggregator
             return $this->configuration;
         }
 
-        if (!file_exists($manifestPath = getcwd() . "/awesome-project.json")) {
+        if (!file_exists($manifestPath = getcwd() . "/awesome-project.yaml")) {
             throw new \RuntimeException("Not an awesome project :( !");
         }
 
-        $this->configuration = $this->serializer->deserialize(
-            file_get_contents($manifestPath),
-            MainConfiguration::class,
-            'json'
+        $this->configuration = $this->serializer->fromArray(
+            Yaml::parseFile($manifestPath),
+            MainConfiguration::class
         );
 
         return $this->configuration;
@@ -86,7 +85,8 @@ class ProjectAggregator
             /** @var Project $dockerComposeConfig */
             $projectConfiguration->setConfiguration(
                 DockerConfiguration::COMPOSE_CONFIG,
-                $dockerComposeConfig = $this->serializer->fromArray(Yaml::parseFile($dockerComposeConfigPath), Project::class)
+                $dockerComposeConfig = $this->serializer->fromArray(Yaml::parseFile($dockerComposeConfigPath),
+                    Project::class)
             );
 
             $dockerComposeConfig->setPath($projectConfiguration->getPath());

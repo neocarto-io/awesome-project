@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AwesomeProject\Aggregator;
 
 use AwesomeProject\Manager\ProjectManager;
+use AwesomeProject\Model\Configuration\MainConfiguration;
 use AwesomeProject\Model\DockerCompose\EnvironmentVariable;
 use AwesomeProject\Model\DockerCompose\PortMapping;
 use AwesomeProject\Model\DockerCompose\Project;
@@ -45,7 +46,10 @@ class HttpGatewayAggregator
      */
     public function attachHttpGatewayService(Project $project): void
     {
-        $this->compileConfiguration();
+
+        $projectConfig = $this->projectManager->getMainConfiguration();
+
+        $this->compileConfiguration($projectConfig);
 
         $awesomeGateway = new Service();
         $awesomeGateway
@@ -62,18 +66,30 @@ class HttpGatewayAggregator
                         'KONG_ADMIN_LISTEN',
                         sprintf(
                             '0.0.0.0:%s, 0.0.0.0:%s ssl',
-                            self::CONTAINER_ADMIN_HTTP_PORT,
-                            self::CONTAINER_ADMIN_HTTPS_PORT
+                            $projectConfig->getPort('admin_http') ?? self::ADMIN_HTTP_PORT,
+                            $projectConfig->getPort('admin_https') ?? self::ADMIN_HTTPS_PORT
                         )
                     ),
                 ]
             )
             ->setPorts(
                 [
-                    new PortMapping(self::PUBLIC_HTTP_PORT, self::CONTAINER_PUBLIC_HTTP_PORT),
-                    new PortMapping(self::PUBLIC_HTTPS_PORT, self::CONTAINER_PUBLIC_HTTPS_PORT),
-                    new PortMapping(self::ADMIN_HTTP_PORT, self::CONTAINER_ADMIN_HTTP_PORT),
-                    new PortMapping(self::ADMIN_HTTPS_PORT, self::CONTAINER_ADMIN_HTTPS_PORT),
+                    new PortMapping(
+                        $projectConfig->getPort('http') ?? self::PUBLIC_HTTP_PORT,
+                        self::CONTAINER_PUBLIC_HTTP_PORT
+                    ),
+                    new PortMapping(
+                        $projectConfig->getPort('https') ?? self::PUBLIC_HTTPS_PORT,
+                        self::CONTAINER_PUBLIC_HTTPS_PORT
+                    ),
+                    new PortMapping(
+                        $projectConfig->getPort('admin_http') ?? self::ADMIN_HTTP_PORT,
+                        self::CONTAINER_ADMIN_HTTP_PORT
+                    ),
+                    new PortMapping(
+                        $projectConfig->getPort('admin_https') ?? self::ADMIN_HTTPS_PORT,
+                        self::CONTAINER_ADMIN_HTTPS_PORT
+                    ),
                 ]
             )
             ->setLinks(array_keys($project->getServices()))
@@ -81,7 +97,7 @@ class HttpGatewayAggregator
             ->setVolumes(
                 [
                     new Volume(
-                        $this->compileConfiguration(),
+                        $this->compileConfiguration($projectConfig),
                         '/configs'
                     ),
                 ]
@@ -94,23 +110,35 @@ class HttpGatewayAggregator
     }
 
     /**
+     * @param MainConfiguration $projectConfig
      * @return string dir path of the configuration
      */
-    private function compileConfiguration(): string
+    private function compileConfiguration(MainConfiguration $projectConfig): string
     {
-        $projectConfig = $this->projectManager->getMainConfiguration();
 
         $routingConfig = ['_format_version' => '1.1', 'services' => []];
 
-        foreach ($projectConfig->getRoutes() as $routeName => $route) {
+        foreach ($projectConfig->getRoutes() as $target => $sources) {
+
+            $name = str_replace([':', '/'], ['-', '_'], $target);
+
+            $hosts = [];
+            $paths = [];
+
+            foreach ($sources as $source) {
+                $source = "http://$source";
+                $paths[] = parse_url($source, PHP_URL_PATH);
+                $hosts[] = parse_url($source, PHP_URL_HOST);
+            }
+
             $routingConfig['services'][] = [
-                'name' => $routeName,
-                'url' => $route->getTarget(),
+                'name' => $name,
+                'url' => "http://$target",
                 'routes' => [
                     [
-                        'name' => $routeName,
-                        'hosts' => $route->getHosts(),
-                        'paths' => $route->getPaths(),
+                        'name' => $name,
+                        'hosts' => $hosts,
+                        'paths' => $paths,
                     ],
                 ],
             ];
