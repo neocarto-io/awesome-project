@@ -6,18 +6,19 @@ namespace AwesomeProject\Manager;
 
 use AwesomeProject\Aggregator\DockerComposeAggregator;
 use AwesomeProject\Aggregator\HttpGatewayAggregator;
+use AwesomeProject\Traits\ProcessControlTrait;
 use JMS\Serializer\Serializer;
-use React\Promise\Deferred;
-use React\Promise\PromiseInterface;
-use Symfony\Component\Process\Process;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class DockerComposeManager
 {
-    private ProjectManager $projectManager;
+    use ProcessControlTrait;
+
+    private ProjectManager          $projectManager;
     private DockerComposeAggregator $dockerComposeAggregator;
-    private HttpGatewayAggregator $httpGatewayAggregator;
-    private Serializer $serializer;
+    private HttpGatewayAggregator   $httpGatewayAggregator;
+    private Serializer              $serializer;
 
     /**
      * @param ProjectManager $projectManager
@@ -30,12 +31,11 @@ class DockerComposeManager
         DockerComposeAggregator $dockerComposeAggregator,
         HttpGatewayAggregator $httpGatewayAggregator,
         Serializer $serializer
-    )
-    {
-        $this->projectManager = $projectManager;
+    ) {
+        $this->projectManager          = $projectManager;
         $this->dockerComposeAggregator = $dockerComposeAggregator;
-        $this->httpGatewayAggregator = $httpGatewayAggregator;
-        $this->serializer = $serializer;
+        $this->httpGatewayAggregator   = $httpGatewayAggregator;
+        $this->serializer              = $serializer;
     }
 
     /**
@@ -44,7 +44,7 @@ class DockerComposeManager
     public function compileConfiguration()
     {
         $dockerComposeConfiguration = $this->dockerComposeAggregator->aggregateConfiguration(
-            $this->projectManager->getProjects()
+            $this->projectManager->getProjectStates()
         );
 
         $this->httpGatewayAggregator->attachHttpGatewayService($dockerComposeConfiguration);
@@ -57,26 +57,45 @@ class DockerComposeManager
 
     /**
      * Attempt to start all services
-     * @return PromiseInterface
+     *
+     * @param OutputInterface|null $output
+     * @return bool
      */
-    public function up(): PromiseInterface
+    public function up(?OutputInterface $output = null): bool
     {
-        $deferred = new Deferred();
+        return $this->execute(['docker-compose', 'up', '-d'], ['output' => $output]);
+    }
 
-        $process = new Process(['docker-compose', 'up', '-d'], getcwd(), null, null, 0);
+    /**
+     * Attempt to kill all services
+     *
+     * @param OutputInterface|null $output
+     * @return bool
+     */
+    public function kill(?OutputInterface $output = null): bool
+    {
+        return $this->execute(['docker-compose', 'kill'], ['output' => $output]);
+    }
 
-        $process->start();
+    /**
+     * Attempt to stop all services
+     *
+     * @param OutputInterface|null $output
+     * @return bool
+     */
+    public function down(?OutputInterface $output = null): bool
+    {
+        return $this->execute(['docker-compose', 'down'], ['output' => $output]);
+    }
 
-        while (!$process->isTerminated()) {
-            echo $process->getIncrementalOutput();
-        }
-
-        if ($process->isSuccessful()) {
-            $deferred->resolve();
-        } else {
-            $deferred->reject(new \RuntimeException($process->getErrorOutput()));
-        }
-
-        return $deferred->promise();
+    /**
+     * Attempt to restart all services
+     *
+     * @param OutputInterface|null $output
+     * @return bool
+     */
+    public function restart(?OutputInterface $output = null): bool
+    {
+        return $this->execute(['docker-compose', 'restart'], ['output' => $output]);
     }
 }

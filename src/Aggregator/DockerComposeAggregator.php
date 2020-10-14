@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace AwesomeProject\Aggregator;
 
 use AwesomeProject\Model\Configuration\Constants\DockerConfiguration;
-use AwesomeProject\Model\Configuration\ProjectConfiguration;
+use AwesomeProject\Model\Configuration\ProjectState;
 use AwesomeProject\Model\DockerCompose\Project;
 use AwesomeProject\Model\DockerCompose\Service;
 use AwesomeProject\Model\DockerCompose\Volume;
@@ -13,7 +13,7 @@ use AwesomeProject\Model\DockerCompose\Volume;
 class DockerComposeAggregator
 {
     /**
-     * @param ProjectConfiguration[] $projectConfigurations
+     * @param ProjectState[] $projectConfigurations
      * @return Project
      */
     public function aggregateConfiguration(array $projectConfigurations): Project

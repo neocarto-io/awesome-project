@@ -1,69 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AwesomeProject\Model\Configuration;
+
+use JMS\Serializer\Annotation as Serializer;
 
 class ProjectConfiguration
 {
-    public const DOCKER_COMPOSE = 'docker-compose';
-    public const PHP_COMPOSER = 'composer';
-
-    private string $slug;
-    private string $path;
-    private array $configurations;
-
-    public function __construct(string $path)
-    {
-        $this->slug = basename($path);
-        $this->path = $path;
-
-        $this->configurations = [
-            self::DOCKER_COMPOSE => file_exists($configPath = $path . DIRECTORY_SEPARATOR . 'docker-compose.yaml') ? $configPath : null,
-            self::PHP_COMPOSER => file_exists($configPath = $path . DIRECTORY_SEPARATOR . 'composer.json') ? $configPath : null
-        ];
-    }
+    /**
+     * @var string
+     * @Serializer\Type("string")
+     */
+    private string $source;
 
     /**
      * @return string
      */
-    public function getSlug(): string
+    public function getSource(): string
     {
-        return $this->slug;
+        return $this->source;
     }
 
     /**
-     * @return string
-     */
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    /**
-     * @param string $configId
-     * @return bool
-     */
-    public function hasConfiguration(string $configId): bool
-    {
-        return isset($this->configurations[$configId]) && !is_null($this->configurations[$configId]);
-    }
-
-    /**
-     * @param string $configId
-     * @param $configuration
+     * @param string $source
      * @return $this
      */
-    public function setConfiguration(string $configId, $configuration): self
+    public function setSource(string $source): self
     {
-        $this->configurations[$configId] = $configuration;
+        $this->source = $source;
         return $this;
-    }
-
-    /**
-     * @param string $configId
-     * @return mixed
-     */
-    public function getConfiguration(string $configId)
-    {
-        return $this->configurations[$configId] ?? null;
     }
 }

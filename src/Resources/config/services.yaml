@@ -3,14 +3,18 @@ services:
     public: true
 
   AwesomeProject\:
-    resource: 'src/{Aggregator,Command,Manager}'
+    resource: 'src/{Aggregator,Command,Manager,Console}'
     public: true
     autowire: true
 
   AwesomeProject\Command\:
     resource: 'src/Command'
     autowire: true
-    tags: ['command']
+    tags: [ 'command' ]
+    calls:
+      - [ 'setProjectSummaryRenderer',[ '@AwesomeProject\Console\Renderer\ProjectSummaryRenderer' ] ]
+      - [ 'setDockerComposeManager',[ '@AwesomeProject\Manager\DockerComposeManager' ] ]
+
 
   JMS\Serializer\Serializer:
     factory: 'AwesomeProject\Serializer\SerializerBuilder::create'

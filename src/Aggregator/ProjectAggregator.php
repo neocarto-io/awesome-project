@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace AwesomeProject\Aggregator;
 
+use AwesomeProject\Manager\GitManager;
 use AwesomeProject\Model\Configuration\Constants\DockerConfiguration;
+use AwesomeProject\Model\Configuration\Constants\GitConfiguration;
 use AwesomeProject\Model\Configuration\Constants\PHPConfiguration;
 use AwesomeProject\Model\Configuration\MainConfiguration;
-use AwesomeProject\Model\Configuration\ProjectConfiguration;
+use AwesomeProject\Model\Configuration\ProjectState;
 use AwesomeProject\Model\DockerCompose\Project;
 use JMS\Serializer\Serializer;
 use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
@@ -16,15 +18,18 @@ use Symfony\Component\Yaml\Yaml;
 
 class ProjectAggregator
 {
-    private Serializer $serializer;
+    private Serializer         $serializer;
     private ?MainConfiguration $configuration = null;
+    private GitManager         $gitManager;
 
     /**
      * @param Serializer $serializer
+     * @param GitManager $gitManager
      */
-    public function __construct(Serializer $serializer)
+    public function __construct(Serializer $serializer, GitManager $gitManager)
     {
         $this->serializer = $serializer;
+        $this->gitManager = $gitManager;
     }
 
     /**
@@ -49,7 +54,7 @@ class ProjectAggregator
     }
 
     /**
-     * @return \Iterator|ProjectConfiguration[]
+     * @return \Iterator|ProjectState[]
      */
     public function getProjects(): \Iterator
     {
@@ -64,7 +69,7 @@ class ProjectAggregator
 
             foreach ($finder->directories() as $fileInfo) {
                 yield $this->autoDiscoverConfiguration(
-                    new ProjectConfiguration(realpath($fileInfo->getPathname()))
+                    new ProjectState(realpath($fileInfo->getPathname()))
                 );
             }
         } catch (DirectoryNotFoundException $exception) {
@@ -75,18 +80,20 @@ class ProjectAggregator
     /**
      * Default auto-discovery
      *
-     * @param ProjectConfiguration $projectConfiguration
-     * @return ProjectConfiguration
+     * @param ProjectState $projectConfiguration
+     * @return ProjectState
      */
-    private function autoDiscoverConfiguration(ProjectConfiguration $projectConfiguration): ProjectConfiguration
+    private function autoDiscoverConfiguration(ProjectState $projectConfiguration): ProjectState
     {
         if (file_exists($dockerComposeConfigPath = "{$projectConfiguration->getPath()}/docker-compose.yaml")) {
             $projectConfiguration->setConfiguration(DockerConfiguration::COMPOSE_CONFIG_PATH, $dockerComposeConfigPath);
             /** @var Project $dockerComposeConfig */
             $projectConfiguration->setConfiguration(
                 DockerConfiguration::COMPOSE_CONFIG,
-                $dockerComposeConfig = $this->serializer->fromArray(Yaml::parseFile($dockerComposeConfigPath),
-                    Project::class)
+                $dockerComposeConfig = $this->serializer->fromArray(
+                    Yaml::parseFile($dockerComposeConfigPath),
+                    Project::class
+                )
             );
 
             $dockerComposeConfig->setPath($projectConfiguration->getPath());
@@ -99,6 +106,27 @@ class ProjectAggregator
             );*/
         }
 
+        if ($this->gitManager->isGit($projectConfiguration->getPath())) {
+            $projectConfiguration
+                ->setConfiguration(
+                    GitConfiguration::ORIGIN_URL,
+                    $this->gitManager->getOrigin($projectConfiguration->getPath())
+                )
+                ->setConfiguration(
+                    GitConfiguration::BRANCH,
+                    $this->gitManager->getBranch($projectConfiguration->getPath())
+                )
+                ->setConfiguration(
+                    GitConfiguration::STATE,
+                    $this->gitManager->getState($projectConfiguration->getPath())
+                );
+        }
+
         return $projectConfiguration;
+    }
+
+    public function reset()
+    {
+        $this->configuration = null;
     }
 }

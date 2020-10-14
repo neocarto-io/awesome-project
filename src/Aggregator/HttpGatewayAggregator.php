@@ -16,20 +16,20 @@ use Symfony\Component\Yaml\Yaml;
 
 class HttpGatewayAggregator
 {
-    private const PUBLIC_HTTP_PORT = '80';
+    private const PUBLIC_HTTP_PORT  = '80';
     private const PUBLIC_HTTPS_PORT = '443';
 
-    private const ADMIN_HTTP_PORT = '8001';
+    private const ADMIN_HTTP_PORT  = '8001';
     private const ADMIN_HTTPS_PORT = '8444';
 
-    private const CONTAINER_PUBLIC_HTTP_PORT = '8000';
+    private const CONTAINER_PUBLIC_HTTP_PORT  = '8000';
     private const CONTAINER_PUBLIC_HTTPS_PORT = '8443';
 
-    private const CONTAINER_ADMIN_HTTP_PORT = '8001';
+    private const CONTAINER_ADMIN_HTTP_PORT  = '8001';
     private const CONTAINER_ADMIN_HTTPS_PORT = '8444';
 
     private ProjectManager $projectManager;
-    private Serializer $serializer;
+    private Serializer     $serializer;
 
     /**
      * @param ProjectManager $projectManager
@@ -38,7 +38,7 @@ class HttpGatewayAggregator
     public function __construct(ProjectManager $projectManager, Serializer $serializer)
     {
         $this->projectManager = $projectManager;
-        $this->serializer = $serializer;
+        $this->serializer     = $serializer;
     }
 
     /**
@@ -49,7 +49,7 @@ class HttpGatewayAggregator
 
         $projectConfig = $this->projectManager->getMainConfiguration();
 
-        $this->compileConfiguration($projectConfig);
+        $configPath = $this->compileConfiguration($projectConfig);
 
         $awesomeGateway = new Service();
         $awesomeGateway
@@ -94,14 +94,7 @@ class HttpGatewayAggregator
             )
             ->setLinks(array_keys($project->getServices()))
             ->setNetworks(array_keys($project->getNetworks()))
-            ->setVolumes(
-                [
-                    new Volume(
-                        $this->compileConfiguration($projectConfig),
-                        '/configs'
-                    ),
-                ]
-            );
+            ->setVolumes([new Volume($configPath, '/configs')]);
 
         $project->setService(
             'awesome-http-gateway',
@@ -126,17 +119,17 @@ class HttpGatewayAggregator
             $paths = [];
 
             foreach ($sources as $source) {
-                $source = "http://$source";
+                $source  = "http://$source";
                 $paths[] = parse_url($source, PHP_URL_PATH);
                 $hosts[] = parse_url($source, PHP_URL_HOST);
             }
 
             $routingConfig['services'][] = [
-                'name' => $name,
-                'url' => "http://$target",
+                'name'   => $name,
+                'url'    => "http://$target",
                 'routes' => [
                     [
-                        'name' => $name,
+                        'name'  => $name,
                         'hosts' => $hosts,
                         'paths' => $paths,
                     ],
@@ -144,15 +137,15 @@ class HttpGatewayAggregator
             ];
         }
 
-        $kongConfigDir = sprintf('/tmp/%s-awesome-project/kong', md5(getcwd()));
+        $kongConfig = getcwd() . "/kong";
 
-        if (!is_dir($kongConfigDir)) {
-            mkdir($kongConfigDir, 0755, true);
+        if (!is_dir($kongConfig)) {
+            mkdir($kongConfig, 0755, true);
         }
 
 
         file_put_contents(
-            "$kongConfigDir/config.yaml",
+            "{$kongConfig}/config.yaml",
             Yaml::dump(
                 $this->serializer->toArray($routingConfig),
                 6,
@@ -161,6 +154,6 @@ class HttpGatewayAggregator
             )
         );
 
-        return $kongConfigDir;
+        return $kongConfig;
     }
 }

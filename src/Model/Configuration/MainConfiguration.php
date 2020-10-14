@@ -27,6 +27,12 @@ class  MainConfiguration
     private array $routes;
 
     /**
+     * @var array<string,ProjectConfiguration>
+     * @Serializer\Type("array<string,AwesomeProject\Model\Configuration\ProjectConfiguration>")
+     */
+    private array $projects;
+
+    /**
      * @return string
      */
     public function getProjectsRoot(): string
@@ -57,5 +63,22 @@ class  MainConfiguration
     public function getPort(string $identifier): ?string
     {
         return $this->ports[$identifier] ?? null;
+    }
+
+    /**
+     * @return array<string,ProjectConfiguration>|ProjectConfiguration[]
+     */
+    public function getProjects(): array
+    {
+        return $this->projects;
+    }
+
+    /**
+     * @param string $slug
+     * @return ProjectConfiguration|null
+     */
+    public function getProject(string $slug): ?ProjectConfiguration
+    {
+        return $this->projects[$slug] ?? null;
     }
 }

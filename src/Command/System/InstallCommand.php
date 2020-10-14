@@ -4,26 +4,34 @@ declare(strict_types=1);
 
 namespace AwesomeProject\Command\System;
 
-use AwesomeProject\Command\AbstractCommand;
+use AwesomeProject\Manager\ProjectManager;
 use AwesomeProject\Traits\DockerComposeAwareTrait;
 use AwesomeProject\Traits\ProjectSummaryRendererTrait;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
-class UpCommand extends AbstractCommand
+class InstallCommand extends Command
 {
     use ProjectSummaryRendererTrait, DockerComposeAwareTrait;
 
-    protected static $defaultName = 'up';
+    protected static $defaultName = 'install';
+
+    private ProjectManager $projectManager;
+
+    public function __construct(ProjectManager $projectManager)
+    {
+        parent::__construct();
+        $this->projectManager = $projectManager;
+    }
 
     /**
      * {@inheritDoc}
      */
     protected function configure()
     {
-        $this->setDescription('Start the configuration');
-        $this->addOption('update', 'u', InputOption::VALUE_NONE, 'Update repositories before compiling');
+        $this->setDescription('Install services');
     }
 
     /**
@@ -31,8 +39,10 @@ class UpCommand extends AbstractCommand
      * @param OutputInterface $output
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->projectManager->upsertProjects($output);
+
         $this->projectSummaryRenderer->render($output);
 
         if ($this->dockerComposeManager->up($output)) {
