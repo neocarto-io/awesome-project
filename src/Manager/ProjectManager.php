@@ -72,18 +72,26 @@ class ProjectManager
      */
     public function upsertProjects(OutputInterface $output)
     {
+        $justInstalled = [];
         foreach ($this->getMainConfiguration()->getProjects() as $slug => $project) {
             if ($this->getProjectState($slug)) {
-                $this->updateProject($slug, $output);
-            } else {
-                $this->installProject($slug, $project, $output);
+                continue;
             }
-
-            $this->installDependencies($slug, $output);
+            $this->installProject($slug, $project, $output);
+            $justInstalled[$slug] = true;
         }
+
 
         $this->projectStates = null;
         $this->projectAggregator->reset();
+
+        foreach ($this->getProjectStates() as $slug => $projectState) {
+            if (isset($justInstalled[$slug])) {
+                continue;
+            }
+            $this->updateProject($slug, $output);
+            $this->installDependencies($slug, $output);
+        }
     }
 
     /**

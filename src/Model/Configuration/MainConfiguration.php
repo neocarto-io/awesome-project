@@ -30,7 +30,7 @@ class  MainConfiguration
      * @var array<string,ProjectConfiguration>
      * @Serializer\Type("array<string,AwesomeProject\Model\Configuration\ProjectConfiguration>")
      */
-    private array $projects;
+    private array $projects = [];
 
     /**
      * @return string
