@@ -310,4 +310,22 @@ class Service
 
         return $this;
     }
+
+    /**
+     * @return array|null
+     */
+    public function getDeploy(): ?array
+    {
+        return $this->deploy;
+    }
+
+    /**
+     * @param array|null $deploy
+     * @return $this
+     */
+    public function setDeploy(?array $deploy): self
+    {
+        $this->deploy = $deploy;
+        return $this;
+    }
 }

@@ -6,7 +6,7 @@ namespace AwesomeProject\Model\Configuration;
 
 use JMS\Serializer\Annotation as Serializer;
 
-class  MainConfiguration
+class MainConfiguration
 {
     /**
      * @var string
@@ -27,10 +27,10 @@ class  MainConfiguration
     private array $routes;
 
     /**
-     * @var array<string,ProjectConfiguration>
+     * @var array<string,ProjectConfiguration>|null
      * @Serializer\Type("array<string,AwesomeProject\Model\Configuration\ProjectConfiguration>")
      */
-    private array $projects = [];
+    private ?array $projects = null;
 
     /**
      * @return string
@@ -70,7 +70,7 @@ class  MainConfiguration
      */
     public function getProjects(): array
     {
-        return $this->projects;
+        return $this->projects ?? [];
     }
 
     /**
@@ -79,6 +79,6 @@ class  MainConfiguration
      */
     public function getProject(string $slug): ?ProjectConfiguration
     {
-        return $this->projects[$slug] ?? null;
+        return $this->getProjects()[$slug] ?? null;
     }
 }
