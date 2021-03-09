@@ -35,6 +35,9 @@ class UpCommand extends AbstractCommand
     {
         $this->projectSummaryRenderer->render($output);
 
+        $this->dockerComposeManager->compileConfiguration();
+
+        $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
         if ($this->dockerComposeManager->up($output)) {
             $output->writeln("=> [<info>INFO</info>] Project configuration is up and running ✔");
             return 0;

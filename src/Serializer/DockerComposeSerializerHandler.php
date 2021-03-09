@@ -24,14 +24,14 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => 'EnvironmentVariableString',
-                'method' => 'deserializeEnvironmentVariableString'
+                'type' => 'EnvironmentVariables',
+                'method' => 'deserializeEnvironmentVariables'
             ],
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => 'EnvironmentVariableString',
-                'method' => 'serializeEnvironmentVariable'
+                'type' => 'EnvironmentVariables',
+                'method' => 'serializeEnvironmentVariables'
             ],
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
@@ -74,36 +74,45 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
 
     /**
      * @param JsonDeserializationVisitor $visitor
-     * @param string $environmentVariableString
+     * @param array $variables
      * @param array $type
      * @param Context $context
-     * @return EnvironmentVariable
+     * @return EnvironmentVariable[]
      */
-    public function deserializeEnvironmentVariableString(
+    public function deserializeEnvironmentVariables(
         JsonDeserializationVisitor $visitor,
-        string $environmentVariableString,
+        array $variables,
         array $type,
         Context $context
     ) {
-        list($key, $value) = explode('=', $environmentVariableString, 2);
+        $mappedVariables = [];
+        foreach ($variables as $key => $variable) {
+            if (is_numeric($key) && strpos($variable, '=') !== false) {
+                list($key, $value) = explode('=', $variable, 2);
 
-        return new EnvironmentVariable($key, $value);
+                $mappedVariables[] = new EnvironmentVariable($key, $value);
+            } else {
+                $mappedVariables[] = new EnvironmentVariable($key, $variable);
+            }
+        }
+
+        return $mappedVariables;
     }
 
     /**
      * @param JsonSerializationVisitor $visitor
-     * @param EnvironmentVariable $environmentVariable
+     * @param array $environmentVariables
      * @param array $type
      * @param Context $context
-     * @return string
+     * @return array
      */
-    public function serializeEnvironmentVariable(
+    public function serializeEnvironmentVariables(
         JsonSerializationVisitor $visitor,
-        EnvironmentVariable $environmentVariable,
+        array $environmentVariables,
         array $type,
         Context $context
     ) {
-        return (string)$environmentVariable;
+        return array_map('strval', $environmentVariables);
     }
 
     /**

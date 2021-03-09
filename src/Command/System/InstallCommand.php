@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AwesomeProject\Command\System;
 
-use AwesomeProject\Manager\ProjectManager;
 use AwesomeProject\Traits\DockerComposeAwareTrait;
 use AwesomeProject\Traits\ProjectSummaryRendererTrait;
 use Symfony\Component\Console\Command\Command;
@@ -17,14 +16,6 @@ class InstallCommand extends Command
     use ProjectSummaryRendererTrait, DockerComposeAwareTrait;
 
     protected static $defaultName = 'install';
-
-    private ProjectManager $projectManager;
-
-    public function __construct(ProjectManager $projectManager)
-    {
-        parent::__construct();
-        $this->projectManager = $projectManager;
-    }
 
     /**
      * {@inheritDoc}
@@ -41,7 +32,7 @@ class InstallCommand extends Command
      */
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->projectManager->upsertProjects($output);
+        /*$this->projectManager->upsertProjects($output);
 
         $this->projectSummaryRenderer->render($output);
 
@@ -51,6 +42,6 @@ class InstallCommand extends Command
         } else {
             $output->writeln("=> [<error>ERROR</error>]  Cannot start docker-compose configuration");
             return 1;
-        }
+        }*/
     }
 }

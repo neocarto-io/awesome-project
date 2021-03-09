@@ -4,7 +4,6 @@
 namespace AwesomeProject;
 
 use AwesomeProject\DependencyInjection\CompilerPass\CommandCompilerPass;
-use AwesomeProject\Manager\DockerComposeManager;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -21,11 +20,6 @@ $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
 $loader->load('src/Resources/config/services.yaml');
 
 $containerBuilder->compile();
-
-/** @var DockerComposeManager $dockerComposeManager */
-$dockerComposeManager = $containerBuilder->get(DockerComposeManager::class);
-
-$dockerComposeManager->compileConfiguration();
 
 $app = $containerBuilder->get(AwesomeProjectApplication::class);
 

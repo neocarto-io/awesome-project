@@ -25,6 +25,7 @@ class RestartCommand extends AbstractCommand
     {
         $this->projectSummaryRenderer->render($output);
 
+        $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
         if ($this->dockerComposeManager->restart($output)) {
             $output->writeln("=> [<info>INFO</info>] Project configuration is up and running ✔");
             return 0;

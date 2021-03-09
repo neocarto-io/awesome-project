@@ -15,6 +15,21 @@ services:
       - [ 'setProjectSummaryRenderer',[ '@AwesomeProject\Console\Renderer\ProjectSummaryRenderer' ] ]
       - [ 'setDockerComposeManager',[ '@AwesomeProject\Manager\DockerComposeManager' ] ]
 
+  AwesomeProject\Factory\ManifestFactory:
+    arguments:
+      $serializer: '@JMS\Serializer\Serializer'
+
+  AwesomeProject\Factory\RootProjectFactory:
+    arguments:
+      $manifest: '@AwesomeProject\Model\Manifest\MainManifest'
+
+  AwesomeProject\Model\Manifest\MainManifest:
+    factory: [ '@AwesomeProject\Factory\ManifestFactory','getMainManifest' ]
+    public: true
+
+  AwesomeProject\Model\RootProject:
+    factory: [ '@AwesomeProject\Factory\RootProjectFactory','createRootProject' ]
+    public: true
 
   JMS\Serializer\Serializer:
     factory: 'AwesomeProject\Serializer\SerializerBuilder::create'

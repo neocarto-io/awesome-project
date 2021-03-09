@@ -15,27 +15,16 @@ class DockerComposeManager
 {
     use ProcessControlTrait;
 
-    private ProjectManager          $projectManager;
-    private DockerComposeAggregator $dockerComposeAggregator;
-    private HttpGatewayAggregator   $httpGatewayAggregator;
-    private Serializer              $serializer;
-
     /**
-     * @param ProjectManager $projectManager
      * @param DockerComposeAggregator $dockerComposeAggregator
      * @param HttpGatewayAggregator $httpGatewayAggregator
      * @param Serializer $serializer
      */
     public function __construct(
-        ProjectManager $projectManager,
-        DockerComposeAggregator $dockerComposeAggregator,
-        HttpGatewayAggregator $httpGatewayAggregator,
-        Serializer $serializer
+        private DockerComposeAggregator $dockerComposeAggregator,
+        private HttpGatewayAggregator $httpGatewayAggregator,
+        private Serializer $serializer
     ) {
-        $this->projectManager          = $projectManager;
-        $this->dockerComposeAggregator = $dockerComposeAggregator;
-        $this->httpGatewayAggregator   = $httpGatewayAggregator;
-        $this->serializer              = $serializer;
     }
 
     /**
@@ -43,15 +32,13 @@ class DockerComposeManager
      */
     public function compileConfiguration()
     {
-        $dockerComposeConfiguration = $this->dockerComposeAggregator->aggregateConfiguration(
-            $this->projectManager->getProjectStates()
-        );
+        $dockerComposeProject = $this->dockerComposeAggregator->getAggregatedProject();
 
-        $this->httpGatewayAggregator->attachHttpGatewayService($dockerComposeConfiguration);
+        $this->httpGatewayAggregator->attachHttpGatewayService($dockerComposeProject);
 
         file_put_contents(
             getcwd() . "/docker-compose.yaml",
-            Yaml::dump($this->serializer->toArray($dockerComposeConfiguration), 4, 2, Yaml::DUMP_NULL_AS_TILDE)
+            Yaml::dump($this->serializer->toArray($dockerComposeProject), 4, 2, Yaml::DUMP_NULL_AS_TILDE)
         );
     }
 

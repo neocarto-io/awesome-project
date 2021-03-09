@@ -29,6 +29,7 @@ class DownCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
         if ($this->dockerComposeManager->down($output)) {
             $output->writeln("=> [<info>INFO</info>] All services were stopped ✔");
             return 0;

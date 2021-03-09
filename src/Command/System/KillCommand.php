@@ -29,6 +29,7 @@ class KillCommand extends AbstractCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $output->setVerbosity(OutputInterface::VERBOSITY_DEBUG);
         if ($this->dockerComposeManager->kill($output)) {
             $output->writeln("=> [<info>INFO</info>] All services were killed");
             return 0;

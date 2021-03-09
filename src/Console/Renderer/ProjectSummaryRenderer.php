@@ -4,23 +4,16 @@ declare(strict_types=1);
 
 namespace AwesomeProject\Console\Renderer;
 
-use AwesomeProject\Manager\ProjectManager;
-use AwesomeProject\Model\Configuration\Constants\DockerConfiguration;
+use AwesomeProject\Manager\GitManager;
 use AwesomeProject\Model\Configuration\Constants\GitConfiguration;
-use AwesomeProject\Model\Configuration\Constants\PHPConfiguration;
+use AwesomeProject\Model\RootProject;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ProjectSummaryRenderer
 {
-    private ProjectManager $projectManager;
-
-    /**
-     * @param ProjectManager $projectManager
-     */
-    public function __construct(ProjectManager $projectManager)
+    public function __construct(private RootProject $rootProject, private GitManager $gitManager)
     {
-        $this->projectManager = $projectManager;
     }
 
     /**
@@ -28,14 +21,12 @@ class ProjectSummaryRenderer
      */
     public function render(OutputInterface $output)
     {
-
-        $projects = $this->projectManager->getProjectStates();
-
+        $projectNames = $this->rootProject->getProjectNames();
         $output->writeln(
             sprintf(
                 '=> [<info>INFO</info>] %s projects discovered: <info>%s</info>' . PHP_EOL,
-                count($projects),
-                implode(', ', array_keys($projects))
+                count($projectNames),
+                implode(', ', $projectNames)
             )
         );
 
@@ -52,43 +43,35 @@ class ProjectSummaryRenderer
             $table->setHeaders(['name', 'type', 'version', 'capabilities']);
         }
 
-        foreach ($projects as $projectConfiguration) {
+        foreach ($projectNames as $projectName) {
+            $project = $this->rootProject->getProject($projectName);
+
+            $row = [
+                "<info>{$projectName}</info>",
+                $project->getSource() ? 'external' : 'embedded',
+            ];
 
             $capabilities = [];
 
-            if ($projectConfiguration->hasConfiguration(GitConfiguration::BRANCH) && $output->isVeryVerbose()) {
-                $capabilities[] = 'git';
+            if ($output->isVeryVerbose()) {
+                if ($project->isGit()) {
+                    $capabilities[] = 'git';
+                    $row[] = $this->gitManager->getOrigin($project->getPath());
+                    $row[] = $this->gitManager->getState($project->getPath());
+                } else {
+                    $row[] = '';
+                    $row[] = '';
+                }
+                if ($project->isPhpComposer()) {
+                    $capabilities[] = 'php-composer';
+                }
             }
 
-
-            if ($projectConfiguration->hasConfiguration(
-                    PHPConfiguration::COMPOSER_CONFIG_PATH
-                ) && $output->isVeryVerbose()) {
-                $capabilities[] = 'composer';
-            }
-
-            if ($projectConfiguration->hasConfiguration(DockerConfiguration::COMPOSE_CONFIG_PATH)) {
+            if ($project->isDockerCompose()) {
                 $capabilities[] = '<info>docker-compose</info>';
             }
 
-            $row = [
-                "<info>{$projectConfiguration->getSlug()}</info>",
-                $this->projectManager->getMainConfiguration()->getProject(
-                    $projectConfiguration->getSlug()
-                ) ? 'external' : 'embedded',
-            ];
-            if ($output->isVeryVerbose()) {
-                $row[] = $projectConfiguration->getConfiguration(GitConfiguration::ORIGIN_URL);
-            }
-
-            array_push(
-                $row,
-                $projectConfiguration->hasConfiguration(
-                    GitConfiguration::STATE
-                ) ? $projectConfiguration->getConfiguration(GitConfiguration::STATE) : '',
-                implode(', ', $capabilities)
-
-            );
+            $row[] = implode(', ', $capabilities);
 
             $table->addRow($row);
         }

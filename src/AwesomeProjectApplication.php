@@ -11,7 +11,7 @@ class AwesomeProjectApplication extends Application
 {
     public function __construct()
     {
-        parent::__construct('AwesomeProject', '0.1.0');
+        parent::__construct('AwesomeProject', '1.0.0');
     }
 
     public function run(InputInterface $input = null, OutputInterface $output = null)

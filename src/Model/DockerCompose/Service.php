@@ -22,7 +22,7 @@ class Service
 
     /**
      * @var EnvironmentVariable[]|null
-     * @Serializer\Type("array<EnvironmentVariableString>")
+     * @Serializer\Type("EnvironmentVariables")
      */
     private ?array $environment = null;
 
