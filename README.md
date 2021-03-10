@@ -70,6 +70,18 @@ http:
       - terranova.romania2x/sockjs-node
     mercure/.well-known/mercure:
       - terranova.romania2x/.well-known/mercure
+docker-compose:
+  global:
+    elasticsearch:
+      volumes:
+        - ./var/elasticsearch:/usr/share/elasticsearch/data
+    rabbitmq:
+      volumes:
+        - ./var/rabbitmq:/var/lib/rabbitmq
+    mongo:
+      volumes:
+        - ./var/mongo:/data/db
+
 ```
 
 To install all your dependent subprojects, execute `aproject install [-vvv]`.

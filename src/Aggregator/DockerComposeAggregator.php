@@ -59,6 +59,8 @@ class DockerComposeAggregator
                 $this->translateEnvFilePaths($service, $source);
             }
 
+            //todo: merge properties
+
             $target->setService($serviceId, $service);
         }
 
