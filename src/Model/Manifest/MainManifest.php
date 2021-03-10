@@ -21,6 +21,13 @@ class MainManifest
     private HttpManifest $http;
 
     /**
+     * @var DockerComposeManifest
+     * @Serializer\Type(DockerComposeManifest::class)
+     * @Serializer\SerializedName("docker-compose")
+     */
+    private DockerComposeManifest $dockerCompose;
+
+    /**
      * @return ProjectsManifest
      */
     public function getProjects(): ProjectsManifest
@@ -34,5 +41,13 @@ class MainManifest
     public function getHttp(): HttpManifest
     {
         return $this->http;
+    }
+
+    /**
+     * @return DockerComposeManifest
+     */
+    public function getDockerCompose(): DockerComposeManifest
+    {
+        return $this->dockerCompose;
     }
 }

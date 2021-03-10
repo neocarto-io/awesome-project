@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AwesomeProject\Aggregator;
 
+use AwesomeProject\Model\Manifest\MainManifest;
 use AwesomeProject\Model\RootProject;
 use JMS\Serializer\Serializer;
 use Symfony\Component\Yaml\Yaml;
@@ -11,8 +12,11 @@ use AwesomeProject\Model\DockerCompose as DockerCompose;
 
 class DockerComposeAggregator
 {
-    public function __construct(private RootProject $rootProject, private Serializer $serializer)
-    {
+    public function __construct(
+        private MainManifest $manifest,
+        private RootProject $rootProject,
+        private Serializer $serializer
+    ) {
     }
 
     /**
@@ -48,7 +52,7 @@ class DockerComposeAggregator
     {
         foreach ($source->getServices() as $serviceId => $service) {
             if (is_array($service->getVolumes())) {
-                $this->translateVolumePaths($service, $source);
+                $this->translateVolumePaths($serviceId, $service, $source);
             }
 
             if (is_array($service->getEnvFile())) {
@@ -64,32 +68,55 @@ class DockerComposeAggregator
     }
 
     /**
+     * @param string $serviceId
      * @param DockerCompose\Service $service
      * @param DockerCompose\Project $source
      */
-    private function translateVolumePaths(DockerCompose\Service $service, DockerCompose\Project $source)
+    private function translateVolumePaths(
+        string $serviceId,
+        DockerCompose\Service $service,
+        DockerCompose\Project $source
+    ) {
+        $finalVolumes = [];
+
+        foreach ($service->getVolumes() as $volume) {
+            $volume = $this->translateVolume($volume, $source->getPath());
+
+            $finalVolumes[$volume->getContainerPath()] = $volume;
+        }
+
+        $serviceOverwrite = $this->manifest->getDockerCompose()->getGlobalService($serviceId);
+
+        if (is_null($serviceOverwrite)) {
+            $volumes = [];
+        } else {
+            $volumes = $serviceOverwrite->getVolumes();
+        }
+
+        foreach ($volumes as $volume) {
+            $volume = $this->translateVolume($volume, getcwd());
+
+            $finalVolumes[$volume->getContainerPath()] = $volume;
+        }
+
+        $service->setVolumes(array_values($finalVolumes));
+    }
+
+    private function translateVolume(DockerCompose\Volume $volume, string $basePath): DockerCompose\Volume
     {
-        $service->setVolumes(
-            array_map(
-                function (DockerCompose\Volume $volume) use ($source) {
-                    //absolute path
-                    if ($volume->getHostPath()[0] == '/') {
-                        $hostPath = $volume->getHostPath();
-                    } else {
-                        $hostPath = $source->getPath() . DIRECTORY_SEPARATOR . $volume->getHostPath();
-                    }
+        if ($volume->getHostPath()[0] == '/') {
+            $hostPath = $volume->getHostPath();
+        } else {
+            $hostPath = $basePath . DIRECTORY_SEPARATOR . $volume->getHostPath();
+        }
 
-                    if (is_dir($hostPath) || is_file($hostPath)) {
-                        $hostPath = realpath($hostPath);
-                    }
+        if (is_dir($hostPath) || is_file($hostPath)) {
+            $hostPath = realpath($hostPath);
+        }
 
-                    return new DockerCompose\Volume(
-                        $hostPath,
-                        $volume->getContainerPath()
-                    );
-                },
-                $service->getVolumes()
-            )
+        return new DockerCompose\Volume(
+            $hostPath,
+            $volume->getContainerPath()
         );
     }
 
