@@ -6,17 +6,12 @@ namespace AwesomeProject\Model\DockerCompose;
 
 class EnvironmentVariable
 {
-    private string $key;
-    private ?string $value;
-
     /**
      * @param string $key
      * @param string|null $value
      */
-    public function __construct(string $key, ?string $value)
+    public function __construct(private string $key, private ?string $value)
     {
-        $this->key = $key;
-        $this->value = $value;
     }
 
     /**

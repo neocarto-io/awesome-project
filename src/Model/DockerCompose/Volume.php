@@ -6,17 +6,12 @@ namespace AwesomeProject\Model\DockerCompose;
 
 class Volume
 {
-    private string $hostPath;
-    private string $containerPath;
-
     /**
      * @param string $hostPath
      * @param string $containerPath
      */
-    public function __construct(string $hostPath, string $containerPath)
+    public function __construct(private string $hostPath, private string $containerPath)
     {
-        $this->hostPath = $hostPath;
-        $this->containerPath = $containerPath;
     }
 
     /**

@@ -36,4 +36,12 @@ class ProjectsManifest
     {
         return $this->sources[$projectName] ?? null;
     }
+
+    /**
+     * @return array|ProjectSource[]
+     */
+    public function getSources(): array
+    {
+        return $this->sources;
+    }
 }

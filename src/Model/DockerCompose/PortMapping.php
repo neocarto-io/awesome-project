@@ -6,17 +6,12 @@ namespace AwesomeProject\Model\DockerCompose;
 
 class PortMapping
 {
-    private string $hostPort;
-    private string $containerPort;
-
     /**
      * @param string $hostPort
      * @param string $containerPort
      */
-    public function __construct(string $hostPort, string $containerPort)
+    public function __construct(private string $hostPort, private string $containerPort)
     {
-        $this->hostPort = $hostPort;
-        $this->containerPort = $containerPort;
     }
 
     /**
