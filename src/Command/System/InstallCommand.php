@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace AwesomeProject\Command\System;
 
 use AwesomeProject\Manager\ProjectManager;
-use AwesomeProject\Model\Manifest\MainManifest;
-use AwesomeProject\Model\RootProject;
 use AwesomeProject\Traits\DockerComposeAwareTrait;
 use AwesomeProject\Traits\ProjectSummaryRendererTrait;
 use Symfony\Component\Console\Command\Command;

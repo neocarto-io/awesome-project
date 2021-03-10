@@ -16,47 +16,50 @@ Make life easy for developers who use docker, docker-compose and symfony flavour
 
 ```shell
 $ git clone https://github.com/romania2x/awesome-project /path/to/awesome-project
+$ cd /path/to/awesome-project
 $ composer install
-$ ln -s /path/to/awesome-project/awesome-project /usr/local/bin/aproject
+$ ln -s /path/to/awesome-project/awesome-project.php /usr/local/bin/aproject
 ```
 
 ## Setting up an environment
 
-An environment root is marked by the presence of a file called: `awesome-system.yaml`. This file contains all the
+An environment root is marked by the presence of a file called: `awesome-project.yaml`. This file contains all the
 settings required by awesome project:
 
 ```yaml
-projectsRoot: "./services"
 projects:
-  user-data:
-    source: git@github.com:romania2x/user-data.git
-  user-management:
-    source: git@github.com:romania2x/user-management.git
-  data-aggregator:
-    source: git@github.com:romania2x/data-aggregator.git
-  ng-controlpanel:
-    source: git@github.com:romania2x/ng-controlpanel.git
-  php-commons:
-    source: git@github.com:romania2x/php-commons.git
-ports:
-  admin_http: 8881
-routes:
-  kibana:5601:
-    - kibana.romania2x/
-  mongo-express:8081:
-    - mongo-express.romania2x/
-  user-management-nginx:
-    - terranova.romania2x/api/users
-  user-data-nginx:
-    - terranova.romania2x/api/user-data
-  data-aggregator-nginx:
-    - terranova.romania2x/api/global-data
-  controlpanel:4200/controlpanel:
-    - terranova.romania2x/controlpanel
-  controlpanel:4200/sockjs-node:
-    - terranova.romania2x/sockjs-node
-  mercure/.well-known/mercure:
-    - terranova.romania2x/.well-known/mercure
+  root: "./services"
+  sources:
+    user-data:
+      source: git@github.com:romania2x/user-data.git
+    user-management:
+      source: git@github.com:romania2x/user-management.git
+    data-aggregator:
+      source: git@github.com:romania2x/data-aggregator.git
+    ng-controlpanel:
+      source: git@github.com:romania2x/ng-controlpanel.git
+    php-commons:
+      source: git@github.com:romania2x/php-commons.git
+http:
+  ports:
+    admin_http: 8881
+  routes:
+    kibana:5601:
+      - kibana.romania2x/
+    mongo-express:8081:
+      - mongo-express.romania2x/
+    user-management-nginx:
+      - terranova.romania2x/api/users
+    user-data-nginx:
+      - terranova.romania2x/api/user-data
+    data-aggregator-nginx:
+      - terranova.romania2x/api/global-data
+    controlpanel:4200/controlpanel:
+      - terranova.romania2x/controlpanel
+    controlpanel:4200/sockjs-node:
+      - terranova.romania2x/sockjs-node
+    mercure/.well-known/mercure:
+      - terranova.romania2x/.well-known/mercure
 ```
 
 To install all your dependent subprojects, execute `aproject install [-vvv]`.
@@ -70,7 +73,7 @@ To see the available arguments, execute:
 ```shell
 
 $ aproject     
-AwesomeProject 0.1.0
+AwesomeProject 1.0.0
 
 Usage:
   command [options] [arguments]

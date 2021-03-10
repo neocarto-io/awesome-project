@@ -11,10 +11,16 @@ use Symfony\Component\Finder\Finder;
 
 class RootProjectFactory
 {
+    /**
+     * @param MainManifest $manifest
+     */
     public function __construct(private MainManifest $manifest)
     {
     }
 
+    /**
+     * @return RootProject
+     */
     public function createRootProject(): RootProject
     {
         $rootProject = new RootProject();

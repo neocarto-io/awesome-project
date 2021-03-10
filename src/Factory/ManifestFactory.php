@@ -16,7 +16,7 @@ class ManifestFactory
      */
     public function __construct(
         private Serializer $serializer,
-        private string $manifestFilename = 'awesome-project-v1.yaml'
+        private string $manifestFilename = 'awesome-project.yaml'
     ) {
     }
 

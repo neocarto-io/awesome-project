@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace AwesomeProject\Console\Renderer;
 
 use AwesomeProject\Manager\GitManager;
-use AwesomeProject\Model\Configuration\Constants\GitConfiguration;
 use AwesomeProject\Model\RootProject;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
