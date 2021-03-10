@@ -29,6 +29,7 @@ class Service
     /**
      * @var string[]|null
      * @Serializer\Type("array<string>")
+     * @Serializer\SerializedName("env_file")
      */
     private ?array $envFile = null;
 
@@ -308,24 +309,6 @@ class Service
     {
         $this->hostname = $hostname;
 
-        return $this;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getDeploy(): ?array
-    {
-        return $this->deploy;
-    }
-
-    /**
-     * @param array|null $deploy
-     * @return $this
-     */
-    public function setDeploy(?array $deploy): self
-    {
-        $this->deploy = $deploy;
         return $this;
     }
 }

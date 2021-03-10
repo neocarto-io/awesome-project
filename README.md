@@ -29,17 +29,27 @@ settings required by awesome project:
 ```yaml
 projects:
   root: "./services"
-  sources:
+  settings:
     user-data:
-      source: git@github.com:romania2x/user-data.git
+      source:
+        type: git
+        path: git@github.com:romania2x/user-data.git
     user-management:
-      source: git@github.com:romania2x/user-management.git
+      source:
+        type: git
+        path: git@github.com:romania2x/user-management.git
     data-aggregator:
-      source: git@github.com:romania2x/data-aggregator.git
+      source:
+        type: git
+        path: git@github.com:romania2x/data-aggregator.git
     ng-controlpanel:
-      source: git@github.com:romania2x/ng-controlpanel.git
+      source:
+        type: git
+        path: git@github.com:romania2x/ng-controlpanel.git
     php-commons:
-      source: git@github.com:romania2x/php-commons.git
+      source:
+        type: git
+        path: git@github.com:romania2x/php-commons.git
 http:
   ports:
     admin_http: 8881

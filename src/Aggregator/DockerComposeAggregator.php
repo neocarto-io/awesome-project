@@ -72,7 +72,6 @@ class DockerComposeAggregator
         $service->setVolumes(
             array_map(
                 function (DockerCompose\Volume $volume) use ($source) {
-
                     //absolute path
                     if ($volume->getHostPath()[0] == '/') {
                         $hostPath = $volume->getHostPath();
@@ -103,11 +102,16 @@ class DockerComposeAggregator
         $service->setEnvFile(
             array_map(
                 function (string $path) use ($source) {
-                    if (substr($path, 0, 2) == './') {
-                        return $source->getPath() . DIRECTORY_SEPARATOR . substr($path, 2);
-                    } else {
-                        return $path;
+                    //absolute path
+                    if ($path[0] != '/') {
+                        $path = $source->getPath() . DIRECTORY_SEPARATOR . $path;
                     }
+
+                    if (is_dir($path) || is_file($path)) {
+                        return realpath($path);
+                    }
+
+                    return $path;
                 },
                 $service->getEnvFile()
             )
