@@ -47,7 +47,7 @@ class ProjectSummaryRenderer
 
             $row = [
                 "<info>{$projectName}</info>",
-                $project->getSource() ? 'external' : 'embedded',
+                $project->getSettings()?->getSource() ? 'external' : 'embedded',
             ];
 
             $capabilities = [];

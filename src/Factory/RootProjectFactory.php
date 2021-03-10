@@ -34,7 +34,7 @@ class RootProjectFactory
             $project = new Project(
                 $projectName,
                 $directoryInfo->getRealPath(),
-                $this->manifest->getProjects()->getSource($projectName)
+                $this->manifest->getProjects()->getProjectSettings($projectName)
             );
 
             $rootProject->addProject($project);

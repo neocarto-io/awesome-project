@@ -7,7 +7,7 @@ namespace AwesomeProject\Model\Manifest;
 class ProjectSource
 {
     private string $type;
-    private string $source;
+    private string $path;
 
     /**
      * @return string
@@ -20,8 +20,8 @@ class ProjectSource
     /**
      * @return string
      */
-    public function getSource(): string
+    public function getPath(): string
     {
-        return $this->source;
+        return $this->path;
     }
 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace AwesomeProject\Model;
 
-use AwesomeProject\Model\Manifest\ProjectSource;
+use AwesomeProject\Model\Manifest\ProjectSettings;
 
 class Project
 {
-    public function __construct(private string $name, private string $path, private ?ProjectSource $source)
+    public function __construct(private string $name, private string $path, private ?ProjectSettings $settings)
     {
     }
 
@@ -22,9 +22,9 @@ class Project
         return $this->path;
     }
 
-    public function getSource(): ?ProjectSource
+    public function getSettings(): ?ProjectSettings
     {
-        return $this->source;
+        return $this->settings;
     }
 
     public function isGit(): bool

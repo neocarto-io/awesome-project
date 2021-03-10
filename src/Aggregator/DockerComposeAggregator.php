@@ -72,12 +72,18 @@ class DockerComposeAggregator
         $service->setVolumes(
             array_map(
                 function (DockerCompose\Volume $volume) use ($source) {
-                    if (substr($volume->getHostPath(), 0, 2) == './') {
-                        $hostPath = $source->getPath() . DIRECTORY_SEPARATOR . substr($volume->getHostPath(),
-                                2);
-                    } else {
+
+                    //absolute path
+                    if ($volume->getHostPath()[0] == '/') {
                         $hostPath = $volume->getHostPath();
+                    } else {
+                        $hostPath = $source->getPath() . DIRECTORY_SEPARATOR . $volume->getHostPath();
                     }
+
+                    if (is_dir($hostPath) || is_file($hostPath)) {
+                        $hostPath = realpath($hostPath);
+                    }
+
                     return new DockerCompose\Volume(
                         $hostPath,
                         $volume->getContainerPath()
@@ -94,15 +100,17 @@ class DockerComposeAggregator
      */
     private function translateEnvFilePaths(DockerCompose\Service $service, DockerCompose\Project $source)
     {
-        $service->setEnvFile(array_map(
-            function (string $path) use ($source) {
-                if (substr($path, 0, 2) == './') {
-                    return $source->getPath() . DIRECTORY_SEPARATOR . substr($path, 2);
-                } else {
-                    return $path;
-                }
-            },
-            $service->getEnvFile()
-        ));
+        $service->setEnvFile(
+            array_map(
+                function (string $path) use ($source) {
+                    if (substr($path, 0, 2) == './') {
+                        return $source->getPath() . DIRECTORY_SEPARATOR . substr($path, 2);
+                    } else {
+                        return $path;
+                    }
+                },
+                $service->getEnvFile()
+            )
+        );
     }
 }

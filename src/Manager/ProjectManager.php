@@ -25,12 +25,12 @@ class ProjectManager
     public function upsertProjects(OutputInterface $output)
     {
         $installed = [];
-        foreach ($this->manifest->getProjects()->getSources() as $projectName => $source) {
+        foreach ($this->manifest->getProjects()->getSettings() as $projectName => $projectSettings) {
             if ($this->rootProject->getProject($projectName)) {
                 //installed/detected
                 continue;
             }
-            $this->installProject($projectName, $source, $output);
+            $this->installProject($projectName, $projectSettings->getSource(), $output);
             $installed[] = $projectName;
         }
 
@@ -53,10 +53,17 @@ class ProjectManager
     {
         $output->writeln("=> [<info>INFO</info>] Installing <info>{$projectName}</info> ...");
 
-        $result = $this->execute(
-            ['git', 'clone', $source->getSource(), $projectName],
-            ['workingDirectory' => realpath($this->manifest->getProjects()->getRoot())]
-        );
+        switch ($source->getType()) {
+            case 'git':
+                $result = $this->execute(
+                    ['git', 'clone', $source->getPath(), $projectName],
+                    ['workingDirectory' => realpath($this->manifest->getProjects()->getRoot())]
+                );
+                break;
+            default:
+                $result = null;
+
+        }
 
         if ($result) {
             $output->writeln("=> [<info>INFO</info>] Installed <info>{$projectName}</info> ...");

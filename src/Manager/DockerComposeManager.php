@@ -50,7 +50,7 @@ class DockerComposeManager
      */
     public function up(?OutputInterface $output = null): bool
     {
-        return $this->execute(['docker-compose', 'up', '-d'], ['output' => $output]);
+        return $this->execute(['docker-compose', 'up', '-d', '--remove-orphans'], ['output' => $output]);
     }
 
     /**

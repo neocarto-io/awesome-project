@@ -15,10 +15,10 @@ class ProjectsManifest
     private string $root;
 
     /**
-     * @var array|ProjectSource[]
-     * @Serializer\Type("array<string,AwesomeProject\Model\Manifest\ProjectSource>")
+     * @var array|ProjectSettings[]
+     * @Serializer\Type("array<string,AwesomeProject\Model\Manifest\ProjectSettings>")
      */
-    private array $sources;
+    private array $settings;
 
     /**
      * @return string
@@ -30,18 +30,18 @@ class ProjectsManifest
 
     /**
      * @param string $projectName
-     * @return ProjectSource|null
+     * @return ProjectSettings|null
      */
-    public function getSource(string $projectName): ?ProjectSource
+    public function getProjectSettings(string $projectName): ?ProjectSettings
     {
-        return $this->sources[$projectName] ?? null;
+        return $this->settings[$projectName] ?? null;
     }
 
     /**
-     * @return array|ProjectSource[]
+     * @return array|ProjectSettings[]
      */
-    public function getSources(): array
+    public function getSettings(): array
     {
-        return $this->sources;
+        return $this->settings;
     }
 }

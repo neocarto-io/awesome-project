@@ -101,7 +101,7 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
 
     /**
      * @param JsonSerializationVisitor $visitor
-     * @param array $environmentVariables
+     * @param array|EnvironmentVariable[] $environmentVariables
      * @param array $type
      * @param Context $context
      * @return array
@@ -112,7 +112,13 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
         array $type,
         Context $context
     ) {
-        return array_map('strval', $environmentVariables);
+
+        $variables = [];
+        foreach ($environmentVariables as $variable) {
+            $variables[$variable->getKey()] = $variable->getValue();
+        }
+
+        return $variables;
     }
 
     /**
