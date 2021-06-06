@@ -90,9 +90,9 @@ class DockerComposeSerializerHandler implements SubscribingHandlerInterface
             if (is_numeric($key) && strpos($variable, '=') !== false) {
                 list($key, $value) = explode('=', $variable, 2);
 
-                $mappedVariables[] = new EnvironmentVariable($key, $value);
+                $mappedVariables[] = new EnvironmentVariable($key, strval($value));
             } else {
-                $mappedVariables[] = new EnvironmentVariable($key, $variable);
+                $mappedVariables[] = new EnvironmentVariable($key, strval($variable));
             }
         }
 

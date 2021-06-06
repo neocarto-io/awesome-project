@@ -12,6 +12,11 @@ use AwesomeProject\Model\DockerCompose as DockerCompose;
 
 class DockerComposeAggregator
 {
+    /**
+     * @param MainManifest $manifest
+     * @param RootProject $rootProject
+     * @param Serializer $serializer
+     */
     public function __construct(
         private MainManifest $manifest,
         private RootProject $rootProject,
@@ -59,6 +64,17 @@ class DockerComposeAggregator
                 $this->translateEnvFilePaths($service, $source);
             }
 
+            if ($this->manifest->getLogging()->hasService($serviceId)) {
+                $service
+                    ->addDependsOn($this->manifest->getLogging()->getService(), 'service_healthy')
+                    ->setLogging(
+                        [
+                            'driver' => $this->manifest->getLogging()->getDriver(),
+                            'options' => $this->manifest->getLogging()->getOptions()
+                        ]
+                    );
+            }
+
             //todo: merge properties
 
             $target->setService($serviceId, $service);
@@ -87,6 +103,7 @@ class DockerComposeAggregator
             $finalVolumes[$volume->getContainerPath()] = $volume;
         }
 
+        //todo: overwrite all properties
         $serviceOverwrite = $this->manifest->getDockerCompose()->getGlobalService($serviceId);
 
         if (is_null($serviceOverwrite)) {
@@ -104,6 +121,11 @@ class DockerComposeAggregator
         $service->setVolumes(array_values($finalVolumes));
     }
 
+    /**
+     * @param DockerCompose\Volume $volume
+     * @param string $basePath
+     * @return DockerCompose\Volume
+     */
     private function translateVolume(DockerCompose\Volume $volume, string $basePath): DockerCompose\Volume
     {
         if ($volume->getHostPath()[0] == '/') {

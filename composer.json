@@ -21,7 +21,8 @@
     "jms/serializer": "^3.8",
     "symfony/dependency-injection": "^5.2@dev",
     "symfony/config": "^5.2@dev",
-    "react/promise": "dev-master"
+    "react/promise": "dev-master",
+    "ext-posix": "*"
   },
   "autoload": {
     "psr-4": {

@@ -21,7 +21,7 @@ class HttpGatewayAggregator
     private const ADMIN_HTTP_PORT = '8001';
     private const ADMIN_HTTPS_PORT = '8444';
 
-    private const CONTAINER_PUBLIC_HTTP_PORT = '8000';
+    private const CONTAINER_PUBLIC_HTTP_PORT = '80';
     private const CONTAINER_PUBLIC_HTTPS_PORT = '8443';
 
     private const CONTAINER_ADMIN_HTTP_PORT = '8001';
@@ -47,6 +47,13 @@ class HttpGatewayAggregator
         };
 
         $gatewayTargets = $this->compileConfiguration($kongConfig);
+        if (count($this->manifest->getHttp()->getHostnames())) {
+            foreach (array_keys($project->getNetworks()) as $networkName) {
+                $networks[$networkName] = ['aliases' => $this->manifest->getHttp()->getHostnames()];
+            }
+        } else {
+            $networks = array_keys($project->getNetworks());
+        }
 
         $awesomeGateway = new Service();
         $awesomeGateway
@@ -59,6 +66,7 @@ class HttpGatewayAggregator
                     new EnvironmentVariable('KONG_ADMIN_ACCESS_LOG', '/dev/stdout'),
                     new EnvironmentVariable('KONG_PROXY_ERROR_LOG', '/dev/stderr'),
                     new EnvironmentVariable('KONG_ADMIN_ERROR_LOG', '/dev/stderr'),
+                    new EnvironmentVariable('KONG_PROXY_LISTEN', '0.0.0.0:80'),
                     new EnvironmentVariable(
                         'KONG_ADMIN_LISTEN',
                         sprintf(
@@ -90,7 +98,7 @@ class HttpGatewayAggregator
                 ]
             )
             ->setLinks($gatewayTargets)
-            ->setNetworks(array_keys($project->getNetworks()))
+            ->setNetworks($networks)
             ->setVolumes([new Volume($kongConfig, '/configs')]);
 
         $project->setService(
@@ -124,8 +132,8 @@ class HttpGatewayAggregator
             $hosts = [];
             $paths = [];
 
-            foreach ($sources as $source) {
-                $source = "http://$source";
+            foreach ($sources as $sourceOptions) {
+                $source = "http://{$sourceOptions['source']}";
                 $paths[] = parse_url($source, PHP_URL_PATH);
                 $hosts[] = parse_url($source, PHP_URL_HOST);
             }
@@ -138,9 +146,15 @@ class HttpGatewayAggregator
                         'name' => $name,
                         'hosts' => $hosts,
                         'paths' => $paths,
+                        'preserve_host' => $sourceOptions['preserve_host'] ?? false,
+                        'strip_path' => $sourceOptions['strip_path'] ?? true,
                     ],
                 ],
             ];
+        }
+
+        if (!is_null($this->manifest->getHttp()->getPlugins())) {
+            $routingConfig['plugins'] = $this->manifest->getHttp()->getPlugins();
         }
 
         file_put_contents(

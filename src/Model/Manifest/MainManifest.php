@@ -28,6 +28,13 @@ class MainManifest
     private DockerComposeManifest $dockerCompose;
 
     /**
+     * @var LoggingManifest
+     * @Serializer\Type(LoggingManifest::class)
+     */
+    private LoggingManifest $logging;
+
+
+    /**
      * @return ProjectsManifest
      */
     public function getProjects(): ProjectsManifest
@@ -49,5 +56,13 @@ class MainManifest
     public function getDockerCompose(): DockerComposeManifest
     {
         return $this->dockerCompose;
+    }
+
+    /**
+     * @return LoggingManifest
+     */
+    public function getLogging(): LoggingManifest
+    {
+        return $this->logging;
     }
 }

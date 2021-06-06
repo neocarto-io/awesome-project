@@ -19,10 +19,15 @@ trait ProcessControlTrait
 
         $output = $output ?? new NullOutput();
 
+        $env = $options['env'] ?? [];
+
+        $env['UID'] = posix_getuid();
+        $env['GID'] = posix_getgid();
+
         $process = new Process(
             $command,
             $options['workingDirectory'] ?? getcwd(),
-            $options['env'] ?? null,
+            $env,
             $options['input'] ?? null,
             $options['timeout'] ?? 0
         );

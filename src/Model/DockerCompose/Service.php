@@ -15,10 +15,22 @@ class Service
     private ?string $image = null;
 
     /**
+     * @var BuildConfiguration|string|null
+     * @Serializer\Type("AwesomeProject\Model\DockerCompose\BuildConfiguration")
+     */
+    private null|string|BuildConfiguration $build = null;
+
+    /**
      * @var string|null
      * @Serializer\Type("string")
      */
     private ?string $command = null;
+
+    /**
+     * @var string|null
+     * @Serializer\Type("string")
+     */
+    private ?string $user = null;
 
     /**
      * @var EnvironmentVariable[]|null
@@ -40,16 +52,29 @@ class Service
     private ?array $volumes = null;
 
     /**
+     * @var array|null
+     * @Serializer\Type("array")
+     */
+    private ?array $labels = null;
+
+    /**
      * @var string[]|null
      * @Serializer\Type("array<string>")
      */
     private ?array $links = null;
 
     /**
-     * @var string[]|null
-     * @Serializer\Type("array<string>")
+     * @var array|null
+     * @Serializer\Type("array")
      */
     private ?array $networks = null;
+
+    /**
+     * @var string|null
+     * @Serializer\Type("string")
+     * @Serializer\SerializedName("network_mode")
+     */
+    private ?string $networkMode = null;
 
     /**
      * @var string[]|null
@@ -61,11 +86,6 @@ class Service
      * @var string|null
      * @Serializer\Type("string")
      */
-    private ?string $build = null;
-    /**
-     * @var string|null
-     * @Serializer\Type("string")
-     */
     private ?string $workingDir = null;
 
     /**
@@ -73,6 +93,49 @@ class Service
      * @Serializer\Type("string")
      */
     private ?string $hostname = null;
+
+    /**
+     * @var array|null
+     * @Serializer\Type("array")
+     */
+    private ?array $deploy = null;
+
+    /**
+     * @var array|null
+     * @Serializer\Type("array")
+     */
+    private ?array $logging = null;
+
+    /**
+     * @var array|null
+     * @Serializer\Type("array")
+     * @Serializer\SerializedName("depends_on")
+     */
+    private ?array $dependsOn = null;
+
+    /**
+     * @var int|null
+     * @Serializer\Type("int")
+     */
+    private ?int $scale = null;
+
+    /**
+     * @var bool|null
+     * @Serializer\Type("boolean")
+     */
+    private ?bool $tty = null;
+
+    /**
+     * @var bool|null
+     * @Serializer\Type("stdin_open")
+     */
+    private ?bool $stdinOpen = null;
+
+    /**
+     * @var array|null
+     * @Serializer\Type("array")
+     */
+    private ?array $healthcheck = null;
 
     /**
      * @return string|null
@@ -123,7 +186,7 @@ class Service
     }
 
     /**
-     * @return string[]|null
+     * @return array|null
      */
     public function getNetworks(): ?array
     {
@@ -139,9 +202,9 @@ class Service
     }
 
     /**
-     * @return string|null
+     * @return BuildConfiguration|string|null
      */
-    public function getBuild(): ?string
+    public function getBuild(): null|string|BuildConfiguration
     {
         return $this->build;
     }
@@ -236,7 +299,7 @@ class Service
     }
 
     /**
-     * @param string[]|null $networks
+     * @param array|null $networks
      * @return $this
      */
     public function setNetworks(?array $networks): self
@@ -272,10 +335,10 @@ class Service
     }
 
     /**
-     * @param string|null $build
+     * @param BuildConfiguration|string|null $build
      * @return $this
      */
-    public function setBuild(?string $build): self
+    public function setBuild(null|string|BuildConfiguration $build): self
     {
         $this->build = $build;
 
@@ -309,6 +372,74 @@ class Service
     {
         $this->hostname = $hostname;
 
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getDeploy(): ?array
+    {
+        return $this->deploy;
+    }
+
+    /**
+     * @param array|null $deploy
+     * @return $this
+     */
+    public function setDeploy(?array $deploy): self
+    {
+        $this->deploy = $deploy;
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getDependsOn(): ?array
+    {
+        return $this->dependsOn;
+    }
+
+    /**
+     * @param array|null $dependsOn
+     * @return $this
+     */
+    public function setDependsOn(?array $dependsOn): self
+    {
+        $this->dependsOn = $dependsOn;
+        return $this;
+    }
+
+    /**
+     * @param string $dependentServiceId
+     * @param string $condition
+     * @return $this
+     */
+    public function addDependsOn(string $dependentServiceId, string $condition): self
+    {
+        if (is_null($this->dependsOn)) {
+            $this->dependsOn = [];
+        }
+        $this->dependsOn[$dependentServiceId] = ['condition' => $condition];
+        return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getLogging(): ?array
+    {
+        return $this->logging;
+    }
+
+    /**
+     * @param array|null $logging
+     * @return $this
+     */
+    public function setLogging(?array $logging): self
+    {
+        $this->logging = $logging;
         return $this;
     }
 }

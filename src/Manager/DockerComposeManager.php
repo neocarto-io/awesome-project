@@ -38,7 +38,7 @@ class DockerComposeManager
 
         file_put_contents(
             getcwd() . "/docker-compose.yaml",
-            Yaml::dump($this->serializer->toArray($dockerComposeProject), 4, 2, Yaml::DUMP_NULL_AS_TILDE)
+            Yaml::dump($this->serializer->toArray($dockerComposeProject), 10, 2, Yaml::DUMP_NULL_AS_TILDE)
         );
     }
 
@@ -56,12 +56,13 @@ class DockerComposeManager
     /**
      * Attempt to kill all services
      *
+     * @param array $services
      * @param OutputInterface|null $output
      * @return bool
      */
-    public function kill(?OutputInterface $output = null): bool
+    public function kill(array $services, ?OutputInterface $output = null): bool
     {
-        return $this->execute(['docker-compose', 'kill'], ['output' => $output]);
+        return $this->execute(['docker-compose', 'kill', ...$services], ['output' => $output]);
     }
 
     /**

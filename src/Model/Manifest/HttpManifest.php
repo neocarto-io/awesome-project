@@ -16,9 +16,21 @@ class HttpManifest
 
     /**
      * @var array
-     * @Serializer\Type("array<string,array<string>>")
+     * @Serializer\Type("array")
      */
     private array $routes;
+
+    /**
+     * @var array
+     * @Serializer\Type("array<string>")
+     */
+    private array $hostnames = [];
+
+    /**
+     * @var array|null
+     * @Serializer\Type("array")
+     */
+    private array $plugins = [];
 
     /**
      * @return array
@@ -31,5 +43,21 @@ class HttpManifest
     public function getPort(string $portName): ?string
     {
         return $this->ports[$portName] ?? null;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlugins(): array
+    {
+        return $this->plugins;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHostnames(): array
+    {
+        return $this->hostnames;
     }
 }
