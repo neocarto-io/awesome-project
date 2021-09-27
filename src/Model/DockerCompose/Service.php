@@ -85,6 +85,7 @@ class Service
     /**
      * @var string|null
      * @Serializer\Type("string")
+     * @Serializer\SerializedName("working_dir")
      */
     private ?string $workingDir = null;
 
